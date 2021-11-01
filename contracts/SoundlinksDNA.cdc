@@ -182,19 +182,31 @@ pub contract SoundlinksDNA: NonFungibleToken {
             return self.ownedNFTs.keys
         }
 
+        /// getIDByOne returns an ID that are in the collection
+        ///
+        pub fun getIDByOne(): UInt64 {
+            pre {
+                self.ownedNFTs.length > 0: "There's not enough DNA in the collection."
+            }
+
+            var currentIDs = self.getIDs()
+
+            return currentIDs.removeFirst()
+        }
+
         /// getIDsByAmount returns an array of the specified number of IDs that are in the collection
         ///
         pub fun getIDsByAmount(amount: UInt32): [UInt64] {
-            pre{
+            pre {
                 amount <= UInt32(self.ownedNFTs.length): "There's not enough DNAs in the collection."
             }
 
-            var currentIds= self.getIDs()
+            var currentIDs = self.getIDs()
             var ids: [UInt64] = []
 
             var i: UInt32 = 0
             while i < amount {
-                ids[i] = currentIds.removeFirst()
+                ids[i] = currentIDs.removeFirst()
                 i = i + (1 as UInt32)
             }
 
