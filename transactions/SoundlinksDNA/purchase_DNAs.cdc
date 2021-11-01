@@ -1,35 +1,37 @@
-import Soundlinks from "./contracts/Soundlinks.cdc"
+import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
+import SoundlinksDNA from "./contracts/SoundlinksDNA.cdc"
 import FungibleToken from "./contracts/FungibleToken.cdc"
 import FlowToken from "./contracts/FlowToken.cdc"
 
 transaction(purchaseAmount: UInt32, hashs: [String], purchaseUnitPrice: UFix64) {
 
-    let dnaAdmin: &Soundlinks.Admin
-    let dnaReceiver: &Soundlinks.Collection{Soundlinks.CollectionPublic}
+    let dnaAdmin: &SoundlinksDNA.Admin
+    let dnaReceiver: &{NonFungibleToken.CollectionPublic}
     let flowPayer: &FlowToken.Vault
     let flowReceiver: &{FungibleToken.Receiver}
 
     prepare(signer: AuthAccount, soundlinksAdmin: AuthAccount) {
 
-        if signer.borrow<&Soundlinks.Collection>(from: Soundlinks.CollectionStoragePath) == nil {
+        if signer.borrow<&SoundlinksDNA.Collection>(from: SoundlinksDNA.CollectionStoragePath) == nil {
+
             signer.save(
-                <-Soundlinks.createEmptyCollection(),
-                to: Soundlinks.CollectionStoragePath
+                <-SoundlinksDNA.createEmptyCollection(),
+                to: SoundlinksDNA.CollectionStoragePath
             )
 
-            signer.link<&Soundlinks.Collection{Soundlinks.CollectionPublic}>(
-                Soundlinks.CollectionPublicPath,
-                target: Soundlinks.CollectionStoragePath
+            signer.link<&SoundlinksDNA.Collection{NonFungibleToken.CollectionPublic, SoundlinksDNA.SoundlinksDNACollectionPublic}>(
+                SoundlinksDNA.CollectionPublicPath,
+                target: SoundlinksDNA.CollectionStoragePath
             )
         }
 
         self.dnaAdmin = soundlinksAdmin
-            .borrow<&Soundlinks.Admin>(from: Soundlinks.AdminStoragePath)
+            .borrow<&SoundlinksDNA.Admin>(from: SoundlinksDNA.AdminStoragePath)
             ?? panic("soundlinksAdmin is not the Soundlinks DNA admin.")
 
         self.dnaReceiver = signer
-            .getCapability(Soundlinks.CollectionPublicPath)!
-            .borrow<&Soundlinks.Collection{Soundlinks.CollectionPublic}>()
+            .getCapability(SoundlinksDNA.CollectionPublicPath)!
+            .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not borrow receiver reference to the recipient's DNA Collection.")
 
         self.flowPayer = signer
@@ -45,7 +47,6 @@ transaction(purchaseAmount: UInt32, hashs: [String], purchaseUnitPrice: UFix64) 
     pre {
 
         UInt32(hashs.length) == purchaseAmount: "The amount of hashs should be the same as the purchaseAmount."
-
     }
 
     execute {
@@ -54,10 +55,6 @@ transaction(purchaseAmount: UInt32, hashs: [String], purchaseUnitPrice: UFix64) 
         let sentVault <- self.flowPayer.withdraw(amount: amount)
         self.flowReceiver.deposit(from: <- sentVault)
 
-        let minter <- self.dnaAdmin.createNewMinter(hashs: hashs)
-        let mintedCollection <- minter.mintDNAs(quantity: purchaseAmount)
-        self.dnaReceiver.batchDeposit(dnas: <-mintedCollection)
-
-        destroy minter
+        self.dnaAdmin.mintDNAs(recipient: self.dnaReceiver, hashs: hashs)
     }
 }
