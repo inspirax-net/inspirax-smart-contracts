@@ -1,5 +1,5 @@
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-import SoundlinksDNA from "./contracts/SoundlinksDNA.cdc"
+import NonFungibleToken from "../../contracts/NonFungibleToken.cdc"
+import SoundlinksDNA from "../../contracts/SoundlinksDNA.cdc"
 
 transaction(recipient: Address, hashs: [String]) {
 

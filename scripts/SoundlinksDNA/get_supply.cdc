@@ -1,4 +1,4 @@
-import SoundlinksDNA from "./contracts/SoundlinksDNA.cdc"
+import SoundlinksDNA from "../../contracts/SoundlinksDNA.cdc"
 
 pub fun main(): UInt64 {
 

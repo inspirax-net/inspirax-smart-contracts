@@ -1,7 +1,7 @@
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-import SoundlinksDNA from "./contracts/SoundlinksDNA.cdc"
-import FungibleToken from "./contracts/FungibleToken.cdc"
-import FlowToken from "./contracts/FlowToken.cdc"
+import NonFungibleToken from "../../contracts/NonFungibleToken.cdc"
+import SoundlinksDNA from "../../contracts/SoundlinksDNA.cdc"
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import FlowToken from "../../contracts/FlowToken.cdc"
 
 transaction(purchaseAmount: UInt32, hashs: [String], purchaseUnitPrice: UFix64) {
 
@@ -10,7 +10,7 @@ transaction(purchaseAmount: UInt32, hashs: [String], purchaseUnitPrice: UFix64) 
     let flowPayer: &FlowToken.Vault
     let flowReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount, soundlinksAdmin: AuthAccount) {
+    prepare(soundlinksAdmin: AuthAccount, signer: AuthAccount) {
 
         if signer.borrow<&SoundlinksDNA.Collection>(from: SoundlinksDNA.CollectionStoragePath) == nil {
 
