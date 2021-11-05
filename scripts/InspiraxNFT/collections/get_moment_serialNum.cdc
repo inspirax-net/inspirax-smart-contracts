@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This script gets the serial number of a moment
 // by borrowing a reference to the moment

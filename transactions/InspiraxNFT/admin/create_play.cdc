@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This transaction creates a new play struct
 // and stores it in the Inspirax smart contract

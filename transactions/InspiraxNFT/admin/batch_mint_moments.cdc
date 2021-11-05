@@ -1,5 +1,5 @@
-import Inspirax from "./contracts/Inspirax.cdc"
-import Soundlinks from "./contracts/Soundlinks.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import SoundlinksDNA from "../../../contracts/SoundlinksDNA.cdc"
 
 // This transaction mints multiple moments
 // from a single set/play combination (otherwise known as edition)
@@ -15,13 +15,13 @@ transaction(setID: UInt32, playID: UInt32, quantity: UInt32, recipientAddr: Addr
 
     // Local variable for the Inspirax Admin object
     let adminRef: &Inspirax.Admin
-    let soundlinksDNACollection: &Soundlinks.Collection
+    let soundlinksDNACollection: &SoundlinksDNA.Collection
 
     prepare(acct: AuthAccount) {
 
         // Borrow a reference to the Admin resource in storage
         self.adminRef = acct.borrow<&Inspirax.Admin>(from: Inspirax.AdminStoragePath)!
-        self.soundlinksDNACollection = acct.borrow<&Soundlinks.Collection>(from: Soundlinks.CollectionStoragePath)!
+        self.soundlinksDNACollection = acct.borrow<&SoundlinksDNA.Collection>(from: SoundlinksDNA.CollectionStoragePath)!
     }
 
     execute {
@@ -30,7 +30,8 @@ transaction(setID: UInt32, playID: UInt32, quantity: UInt32, recipientAddr: Addr
         let setRef = self.adminRef.borrowSet(setID: setID)
 
         // Get SOUNDLINKS DNAs
-        let transferDNACollection <- self.soundlinksDNACollection.batchWithdraw(quantity: quantity)
+        let ids = self.soundlinksDNACollection.getIDsByAmount(amount: quantity)
+        let transferDNACollection <- self.soundlinksDNACollection.batchWithdraw(ids: ids) as! @SoundlinksDNA.Collection
 
         // Mint all the new NFTs
         let collection <- setRef.batchMintMoment(playID: playID, quantity: quantity, soundlinksDNACollection: <-transferDNACollection)

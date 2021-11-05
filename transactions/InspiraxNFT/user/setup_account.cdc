@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This transaction sets up an account to use Inspirax
 // by storing an empty moment collection and creating

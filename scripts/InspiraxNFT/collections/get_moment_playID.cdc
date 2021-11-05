@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This script gets the playID associated with a moment
 // in a collection by getting a reference to the moment

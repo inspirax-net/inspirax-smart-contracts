@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This transaction adds multiple plays to a set
 

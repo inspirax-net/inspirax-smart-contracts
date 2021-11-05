@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This transaction is for the admin to create a new set resource
 // and store it in the Inspirax smart contract

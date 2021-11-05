@@ -9,31 +9,31 @@
 		"Inspirax": {
 			"source": "./contracts/Inspirax.cdc",
 			"aliases": {
-				"testnet": "0xda1f22cf8e75323d"
+				"testnet": "0xcc743689760c543d"
 			}
 		},
 		"InspiraxUtilityCoin": {
 			"source": "./contracts/InspiraxUtilityCoin.cdc",
 			"aliases": {
-				"testnet": "0xda1f22cf8e75323d"
+				"testnet": "0xcc743689760c543d"
 			}
 		},
 		"InspiraxShardedCollection": {
 			"source": "./contracts/InspiraxShardedCollection.cdc",
 			"aliases": {
-				"testnet": "0xda1f22cf8e75323d"
+				"testnet": "0xcc743689760c543d"
 			}
 		},
 		"InspiraxBeneficiaryCut": {
 			"source": "./contracts/InspiraxBeneficiaryCut.cdc",
 			"aliases": {
-				"testnet": "0xda1f22cf8e75323d"
+				"testnet": "0xcc743689760c543d"
 			}
 		},
 		"InspiraxMarket": {
 			"source": "./contracts/InspiraxMarket.cdc",
 			"aliases": {
-				"testnet": "0xda1f22cf8e75323d"
+				"testnet": "0xcc743689760c543d"
 			}
 		},
 		"SoundlinksDNA": {
@@ -80,12 +80,16 @@
 			"key": "05e2a08e37c6b79eefb7a6d11363bfd3a060f7e0c6e945e07dd9669b2815f245"
 		},
 		"testnet-account-inspirax": {
-			"address": "0xda1f22cf8e75323d",
+			"address": "0xcc743689760c543d",
 			"keys": "${FLOW_INSPIRAX_PRIVATE_KEY}"
 		},
 		"testnet-account-soundlinks": {
 			"address": "0x282cfe21068b3883",
 			"keys": "${FLOW_SOUNDLINKS_PRIVATE_KEY}"
+		},
+		"testnet-account": {
+			"address": "0xd10a6123238d2075",
+			"keys": "${FLOW_PRIVATE_KEY}"
 		}
 	},
 	"deployments": {
@@ -105,9 +109,7 @@
 			"testnet-account-inspirax": [
 				"Inspirax",
 				"InspiraxUtilityCoin",
-				"InspiraxShardedCollection",
-				"InspiraxBeneficiaryCut",
-				"InspiraxMarket"
+				"InspiraxShardedCollection"
 			]
 		}
 	}

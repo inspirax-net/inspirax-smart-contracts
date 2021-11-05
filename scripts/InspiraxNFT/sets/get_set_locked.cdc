@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This script returns a boolean indicating if the specified set is locked
 // meaning new plays cannot be added to it

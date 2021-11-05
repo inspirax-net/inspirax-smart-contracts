@@ -1,6 +1,6 @@
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-import Inspirax from "./contracts/Inspirax.cdc"
-import InspiraxShardedCollection from "./contracts/InspiraxShardedCollection.cdc"
+import NonFungibleToken from "../../../contracts/NonFungibleToken.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import InspiraxShardedCollection from "../../../contracts/InspiraxShardedCollection.cdc"
 
 // This transaction deposits a number of NFTs to a recipient
 

@@ -1,5 +1,5 @@
-import Inspirax from "./contracts/Inspirax.cdc"
-import Soundlinks from "./contracts/Soundlinks.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import SoundlinksDNA from "../../../contracts/SoundlinksDNA.cdc"
 
 // This transaction is what an admin would use to mint a single new moment
 // and deposit it in a user's collection
@@ -14,13 +14,13 @@ transaction(setID: UInt32, playID: UInt32, recipientAddr: Address) {
 
     // local variable for the admin reference
     let adminRef: &Inspirax.Admin
-    let soundlinksDNACollection: &Soundlinks.Collection
+    let soundlinksDNACollection: &SoundlinksDNA.Collection
 
     prepare(acct: AuthAccount) {
 
         // Borrow a reference to the Admin resource in storage
         self.adminRef = acct.borrow<&Inspirax.Admin>(from: Inspirax.AdminStoragePath)!
-        self.soundlinksDNACollection = acct.borrow<&Soundlinks.Collection>(from: Soundlinks.CollectionStoragePath)!
+        self.soundlinksDNACollection = acct.borrow<&SoundlinksDNA.Collection>(from: SoundlinksDNA.CollectionStoragePath)!
     }
 
     execute {
@@ -29,7 +29,7 @@ transaction(setID: UInt32, playID: UInt32, recipientAddr: Address) {
         let setRef = self.adminRef.borrowSet(setID: setID)
 
         // Get a SOUNDLINKS DNA
-        let soundlinksDNA <- self.soundlinksDNACollection.withdraw()
+        let soundlinksDNA <- self.soundlinksDNACollection.withdraw(withdrawID: self.soundlinksDNACollection.getIDByOne()) as! @SoundlinksDNA.NFT
 
         // Mint a new NFT
         let moment1 <- setRef.mintMoment(playID: playID, soundlinksDNA:<- soundlinksDNA)

@@ -1,5 +1,5 @@
-import FungibleToken from "./contracts/FungibleToken.cdc"
-import InspiraxUtilityCoin from "./contracts/InspiraxUtilityCoin.cdc"
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import InspiraxUtilityCoin from "../../contracts/InspiraxUtilityCoin.cdc"
 
 transaction {
 

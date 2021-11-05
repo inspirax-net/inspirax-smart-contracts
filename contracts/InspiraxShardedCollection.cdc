@@ -77,14 +77,11 @@ pub contract InspiraxShardedCollection {
             // Find the bucket this corresponds to
             let bucket = token.id % self.numBuckets
 
-            // Remove the collection
-            let collection <- self.collections.remove(key: bucket)!
+            // Get the bucket reference
+            let collectionRef = &self.collections[bucket] as! &Inspirax.Collection
 
-            // Deposit the nft into the bucket
-            collection.deposit(token: <-token)
-
-            // Put the Collection back in storage
-            self.collections[bucket] <-! collection
+            // Deposit the NFT into the bucket
+            collectionRef.deposit(token: <-token)
         }
 
         /// batchDeposit takes a Collection object as an argument
@@ -119,7 +116,7 @@ pub contract InspiraxShardedCollection {
                 result.id == id: "The ID of the reference is incorrect"
             }
 
-            // Get the bucket of the nft to be borrowed
+            // Get the bucket of the NFT to be borrowed
             let bucket = id % self.numBuckets
 
             // Find NFT in the collections and borrow a reference
@@ -138,7 +135,7 @@ pub contract InspiraxShardedCollection {
         /// Returns: A reference to the NFT
         pub fun borrowMoment(id: UInt64): &Inspirax.NFT? {
 
-            // Get the bucket of the nft to be borrowed
+            // Get the bucket of the NFT to be borrowed
             let bucket = id % self.numBuckets
 
             return self.collections[bucket]?.borrowMoment(id: id) ?? nil

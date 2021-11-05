@@ -1,9 +1,9 @@
-import FungibleToken from "./contracts/FungibleToken.cdc"
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-import Inspirax from "./contracts/Inspirax.cdc"
-import InspiraxShardedCollection from "./contracts/InspiraxShardedCollection.cdc"
-import FlowStorageFees from "./contracts/FlowStorageFees.cdc"
-import FlowToken from "./contracts/FlowToken.cdc"
+import FungibleToken from "../../../contracts/FungibleToken.cdc"
+import NonFungibleToken from "../../../contracts/NonFungibleToken.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import InspiraxShardedCollection from "../../../contracts/InspiraxShardedCollection.cdc"
+import FlowStorageFees from "../../../contracts/FlowStorageFees.cdc"
+import FlowToken from "../../../contracts/FlowToken.cdc"
 
 // This transaction is what Inspirax uses to send the moments in a "pack" to
 // a user's collection

@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This transaction is for retiring a play from a set, which
 // makes it so that moments can no longer be minted from that edition
@@ -30,7 +30,7 @@ transaction(setID: UInt32, playID: UInt32) {
     }
 
     post {
-        self.adminRef.borrowSet(setID: setID).retired[playID]!: 
+        self.adminRef.borrowSet(setID: setID).getRetired()[playID]!: 
             "play is not retired"
     }
 }

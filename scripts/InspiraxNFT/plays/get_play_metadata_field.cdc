@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This script returns the value for the specified metadata field
 // associated with a play in the Inspirax smart contract

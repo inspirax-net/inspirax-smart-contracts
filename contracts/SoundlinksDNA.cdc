@@ -206,7 +206,7 @@ pub contract SoundlinksDNA: NonFungibleToken {
 
             var i: UInt32 = 0
             while i < amount {
-                ids[i] = currentIDs.removeFirst()
+                ids.append(currentIDs.removeFirst())
                 i = i + (1 as UInt32)
             }
 

@@ -4,7 +4,7 @@
 **/
 
 import NonFungibleToken from "./NonFungibleToken.cdc"
-import Soundlinks from "./Soundlinks.cdc"
+import SoundlinksDNA from "./SoundlinksDNA.cdc"
 
 pub contract Inspirax: NonFungibleToken {
 
@@ -65,9 +65,6 @@ pub contract Inspirax: NonFungibleToken {
     /// Variable size dictionary of Play structs
     access(self) var playDatas: {UInt32: Play}
 
-    /// Variable size dictionary of SetData structs
-    access(self) var setDatas: {UInt32: SetData}
-
     /// Variable size dictionary of Set resources
     access(self) var sets: @{UInt32: Set}
 
@@ -77,7 +74,7 @@ pub contract Inspirax: NonFungibleToken {
     pub var nextPlayID: UInt32
 
     /// The ID that is used to create Sets. Every time a Set is created
-    /// setID is assigned to the new set's ID and then is incremented by 1.
+    /// setID is assigned to the new Set's ID and then is incremented by 1.
     pub var nextSetID: UInt32
 
     /// The total number of Inspirax Moment NFTs that have been created
@@ -95,8 +92,8 @@ pub contract Inspirax: NonFungibleToken {
     // can be created by this contract that contains stored values.
     // -----------------------------------------------------------------------
 
-    /// Play is a Struct that holds metadata associated 
-    /// with a specific video, like the legendary moment.
+    /// Play is a Struct that holds metadata associated
+    /// with a moment, or other forms of collectible.
     ///
     /// Moment NFTs will all reference a single play as the owner of
     /// its metadata. The plays are publicly accessible, so anyone can
@@ -116,59 +113,65 @@ pub contract Inspirax: NonFungibleToken {
             }
             self.playID = Inspirax.nextPlayID
             self.metadata = metadata
-
-            // Increment the ID so that it isn't used again
-            Inspirax.nextPlayID = Inspirax.nextPlayID + (1 as UInt32)
-
-            emit PlayCreated(id: self.playID, metadata: metadata)
         }
     }
 
-    /// A Set is a grouping of Plays that have occured in the real world
-    /// that make up a related group of collectibles, like sets of baseball
-    /// or Magic cards. A Play can exist in multiple different sets.
+    /// QuerySetData Struct that contains all of the important data about a Set
+    /// Can be easily queried by instantiating the `QuerySetData` object
+    /// with the desired setID
     ///
-    /// SetData is a struct that is stored in a field of the contract.
-    /// Anyone can query the constant information
-    /// about a set by calling various getters located
-    /// at the end of the contract. Only the admin has the ability
-    /// to modify any data in the private Set resource.
-    ///
-    pub struct SetData {
+    pub struct QuerySetData {
 
-        /// Unique ID for the Set
         pub let setID: UInt32
 
-        /// Name of the Set
         pub let name: String
 
-        /// Series that this Set belongs to.
-        /// Series is a concept that indicates a group of Sets through time.
-        /// Many Sets can exist at a time, but only one series.
         pub let series: UInt32
 
-        init(name: String) {
+        access(self) var plays: [UInt32]
+
+        access(self) var retired: {UInt32: Bool}
+
+        pub var locked: Bool
+
+        access(self) var numberMintedPerPlay: {UInt32: UInt32}
+
+        init(setID: UInt32) {
             pre {
-                name.length > 0: "New Set name cannot be empty."
+                Inspirax.sets[setID] != nil: "The Set with the provided ID does not exist."
             }
-            self.setID = Inspirax.nextSetID
-            self.name = name
-            self.series = Inspirax.currentSeries
 
-            // Increment the setID so that it isn't used again
-            Inspirax.nextSetID = Inspirax.nextSetID + (1 as UInt32)
+            let setRef = &Inspirax.sets[setID] as &Set
 
-            emit SetCreated(setID: self.setID, series: self.series)
+            self.setID = setID
+            self.name = setRef.name
+            self.series = setRef.series
+            self.plays = setRef.plays
+            self.retired = setRef.retired
+            self.locked = setRef.locked
+            self.numberMintedPerPlay = setRef.numberMintedPerPlay
+        }
+
+        pub fun getPlays(): [UInt32] {
+            return self.plays
+        }
+
+        pub fun getRetired(): {UInt32: Bool} {
+            return self.retired
+        }
+
+        pub fun getNumberMintedPerPlay(): {UInt32: UInt32} {
+            return self.numberMintedPerPlay
         }
     }
 
     /// Set is a resource type that contains the functions to add and remove
-    /// Plays from a set and mint Moments.
+    /// Plays from a Set and mint Moments.
     ///
     /// It is stored in a private field in the contract so that
     /// the admin resource can call its methods.
     ///
-    /// The admin can add Plays to a Set so that the set can mint Moments
+    /// The admin can add Plays to a Set so that the Set can mint Moments
     /// that reference that playdata.
     /// The Moments that are minted by a Set will be listed as belonging to
     /// the Set that minted it, as well as the Play it references.
@@ -184,23 +187,31 @@ pub contract Inspirax: NonFungibleToken {
     ///
     pub resource Set {
 
-        /// Unique ID for the set
+        /// Unique ID for the Set
         pub let setID: UInt32
 
-        /// Array of plays that are a part of this set.
-        /// When a play is added to the set, its ID gets appended here.
+        /// Name of the Set
+        pub let name: String
+
+        /// Series that this Set belongs to.
+        /// Series is a concept that indicates a group of Sets through time.
+        /// Many Sets can exist at a time, but only one series.
+        pub let series: UInt32
+
+        /// Array of plays that are a part of this Set.
+        /// When a play is added to the Set, its ID gets appended here.
         /// The ID does not get removed from this array when a Play is retired.
-        pub var plays: [UInt32]
+        access(contract) var plays: [UInt32]
 
         /// Map of Play IDs that Indicates if a Play in this Set can be minted.
         /// When a Play is added to a Set, it is mapped to false (not retired).
-        /// When a Play is retired, this is set to true and cannot be changed.
-        pub var retired: {UInt32: Bool}
+        /// When a Play is retired, this is Set to true and cannot be changed.
+        access(contract) var retired: {UInt32: Bool}
 
         /// Indicates if the Set is currently locked.
         /// When a Set is created, it is unlocked
         /// and Plays are allowed to be added to it.
-        /// When a set is locked, Plays cannot be added.
+        /// When a Set is locked, Plays cannot be added.
         /// A Set can never be changed from locked to unlocked,
         /// the decision to lock a Set it is final.
         /// If a Set is locked, Plays cannot be added, but
@@ -212,20 +223,22 @@ pub contract Inspirax: NonFungibleToken {
         /// that have been minted for specific Plays in this Set.
         /// When a Moment is minted, this value is stored in the Moment to
         /// show its place in the Set, eg. 13 of 60.
-        pub var numberMintedPerPlay: {UInt32: UInt32}
+        access(contract) var numberMintedPerPlay: {UInt32: UInt32}
 
         init(name: String) {
+            pre {
+                name.length > 0: "New Set name cannot be empty."
+            }
             self.setID = Inspirax.nextSetID
+            self.name = name
+            self.series = Inspirax.currentSeries
             self.plays = []
             self.retired = {}
             self.locked = false
             self.numberMintedPerPlay = {}
-
-            // Create a new SetData for this Set and store it in contract storage
-            Inspirax.setDatas[self.setID] = SetData(name: name)
         }
 
-        /// addPlay adds a play to the set
+        /// addPlay adds a play to the Set
         ///
         /// Parameters: playID: The ID of the Play that is being added
         ///
@@ -237,8 +250,8 @@ pub contract Inspirax: NonFungibleToken {
         pub fun addPlay(playID: UInt32) {
             pre {
                 Inspirax.playDatas[playID] != nil: "Cannot add the Play to Set: Play doesn't exist."
-                !self.locked: "Cannot add the play to the Set after the set has been locked."
-                self.numberMintedPerPlay[playID] == nil: "The play has already beed added to the set."
+                !self.locked: "Cannot add the play to the Set after the Set has been locked."
+                self.numberMintedPerPlay[playID] == nil: "The play has already beed added to the Set."
             }
 
             // Add the Play to the array of Plays
@@ -255,8 +268,7 @@ pub contract Inspirax: NonFungibleToken {
 
         /// addPlays adds multiple Plays to the Set
         ///
-        /// Parameters: playIDs: The IDs of the Plays that are being added
-        ///                      as an array
+        /// Parameters: playIDs: The IDs of the Plays that are being added as an array
         ///
         pub fun addPlays(playIDs: [UInt32]) {
             for play in playIDs {
@@ -273,7 +285,7 @@ pub contract Inspirax: NonFungibleToken {
         ///
         pub fun retirePlay(playID: UInt32) {
             pre {
-                self.retired[playID] != nil: "Cannot retire the Play: Play doesn't exist in this set!"
+                self.retired[playID] != nil: "Cannot retire the Play: Play doesn't exist in this Set!"
             }
 
             if !self.retired[playID]! {
@@ -294,8 +306,8 @@ pub contract Inspirax: NonFungibleToken {
 
         /// lock() locks the Set so that no more Plays can be added to it
         ///
-        /// Pre-Conditions:
-        /// The Set should not be locked
+        /// Pre-Conditions: The Set should not be locked
+        ///
         pub fun lock() {
             if !self.locked {
                 self.locked = true
@@ -306,13 +318,13 @@ pub contract Inspirax: NonFungibleToken {
         /// mintMoment mints a new Moment and returns the newly minted Moment
         ///
         /// Parameters: playID: The ID of the Play that the Moment references
+        ///             soundlinksDNA: The Soundlinks DNA that implanted into the NFT
         ///
-        /// Pre-Conditions:
-        /// The Play must exist in the Set and be allowed to mint new Moments
+        /// Pre-Conditions: The Play must exist in the Set and be allowed to mint new Moments
         ///
         /// Returns: The NFT that was minted
         ///
-        pub fun mintMoment(playID: UInt32, soundlinksDNA: @Soundlinks.DNA): @NFT {
+        pub fun mintMoment(playID: UInt32, soundlinksDNA: @SoundlinksDNA.NFT): @NFT {
             pre {
                 self.retired[playID] != nil: "Cannot mint the moment: This play doesn't exist."
                 !self.retired[playID]!: "Cannot mint the moment from this play: This play has been retired."
@@ -339,20 +351,22 @@ pub contract Inspirax: NonFungibleToken {
         ///
         /// Parameters: playID: the ID of the Play that the Moments are minted for
         ///             quantity: The quantity of Moments to be minted
+        ///             soundlinksDNACollection: The Soundlinks DNAs that implanted into the NFTs
         ///
         /// Returns: Collection object that contains all the Moments that were minted
         ///
-        pub fun batchMintMoment(playID: UInt32, quantity: UInt32, soundlinksDNACollection: @Soundlinks.Collection): @Collection {
+        pub fun batchMintMoment(playID: UInt32, quantity: UInt32, soundlinksDNACollection: @SoundlinksDNA.Collection): @Collection {
 
             pre {
-                soundlinksDNACollection.getAmount() == quantity: "Import the matching amount of DNAs."
+                quantity == UInt32(soundlinksDNACollection.getIDs().length): "The DNAs in the Collection must be the same as the quantity parameter."
             }
 
             let newCollection <- create Collection()
 
             var i: UInt32 = 0
             while i < quantity {
-                let dna <- soundlinksDNACollection.withdraw()
+                let id = soundlinksDNACollection.getIDByOne()
+                let dna <- soundlinksDNACollection.withdraw(withdrawID: id) as! @SoundlinksDNA.NFT
                 newCollection.deposit(token: <-self.mintMoment(playID: playID, soundlinksDNA: <-dna))
                 i = i + (1 as UInt32)
             }
@@ -360,6 +374,18 @@ pub contract Inspirax: NonFungibleToken {
             destroy soundlinksDNACollection
 
             return <-newCollection
+        }
+
+        pub fun getPlays(): [UInt32] {
+            return self.plays
+        }
+
+        pub fun getRetired(): {UInt32: Bool} {
+            return self.retired
+        }
+
+        pub fun getNumMintedPerPlay(): {UInt32: UInt32} {
+            return self.numberMintedPerPlay
         }
     }
 
@@ -389,13 +415,13 @@ pub contract Inspirax: NonFungibleToken {
         /// Global unique moment ID
         pub let id: UInt64
 
-        /// Global unique SOUNDLINKS DNA
-        pub let dna: @Soundlinks.DNA
+        /// Global unique Soundlinks DNA
+        pub let dna: @SoundlinksDNA.NFT
 
         /// Struct of Moment metadata
         pub let data: MomentData
 
-        init(setID: UInt32, playID: UInt32, serialNumber: UInt32, soundlinksDNA: @Soundlinks.DNA) {
+        init(setID: UInt32, playID: UInt32, serialNumber: UInt32, soundlinksDNA: @SoundlinksDNA.NFT) {
             // Increment the global Moment IDs
             Inspirax.totalSupply = Inspirax.totalSupply + (1 as UInt64)
 
@@ -435,6 +461,11 @@ pub contract Inspirax: NonFungibleToken {
             var newPlay = Play(metadata: metadata)
             let newID = newPlay.playID
 
+            // Increment the ID so that it isn't used again
+            Inspirax.nextPlayID = Inspirax.nextPlayID + (1 as UInt32)
+
+            emit PlayCreated(id: newPlay.playID, metadata: metadata)
+
             // Store it in the contract storage
             Inspirax.playDatas[newID] = newPlay
 
@@ -442,19 +473,29 @@ pub contract Inspirax: NonFungibleToken {
         }
 
         /// createSet creates a new Set resource and stores it
-        /// in the sets mapping in the Inspirax contract
+        /// in the Sets mapping in the Inspirax contract
         ///
         /// Parameters: name: The name of the Set
         ///
-        pub fun createSet(name: String) {
+        /// Returns: The ID of the created Set
+        ///
+        pub fun createSet(name: String): UInt32 {
             // Create the new Set
             var newSet <- create Set(name: name)
+            let newID = newSet.setID
 
-            // Store it in the sets mapping field
-            Inspirax.sets[newSet.setID] <-! newSet
+            // Increment the setID so that it isn't used again
+            Inspirax.nextSetID = Inspirax.nextSetID + (1 as UInt32)
+
+            emit SetCreated(setID: newSet.setID, series: Inspirax.currentSeries)
+
+            // Store it in the Sets mapping field
+            Inspirax.sets[newID] <-! newSet
+
+            return newID
         }
 
-        /// borrowSet returns a reference to a set in the Inspirax
+        /// borrowSet returns a reference to a Set in the Inspirax
         /// contract so that the admin can call methods on it
         ///
         /// Parameters: setID: The ID of the Set that you want to
@@ -499,6 +540,7 @@ pub contract Inspirax: NonFungibleToken {
     /// This is the interface that users can cast their Moment Collection as
     /// to allow others to deposit Moments into their Collection. It also allows for reading
     /// the IDs of Moments in the Collection.
+    ///
     pub resource interface MomentCollectionPublic {
         pub fun deposit(token: @NonFungibleToken.NFT)
         pub fun batchDeposit(tokens: @NonFungibleToken.Collection)
@@ -532,6 +574,7 @@ pub contract Inspirax: NonFungibleToken {
         /// that is to be removed from the Collection
         ///
         /// Returns: @NonFungibleToken.NFT the token that was withdrawn
+        ///
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
 
             // Remove the nft from the Collection
@@ -552,6 +595,7 @@ pub contract Inspirax: NonFungibleToken {
         ///                                        the withdrawn moments
         ///
         pub fun batchWithdraw(ids: [UInt64]): @NonFungibleToken.Collection {
+
             // Create a new empty Collection
             var batchCollection <- create Collection()
 
@@ -592,6 +636,7 @@ pub contract Inspirax: NonFungibleToken {
 
         /// batchDeposit takes a Collection object as an argument
         /// and deposits each contained NFT into this Collection
+        ///
         pub fun batchDeposit(tokens: @NonFungibleToken.Collection) {
 
             // Get an array of the IDs to be deposited
@@ -607,6 +652,7 @@ pub contract Inspirax: NonFungibleToken {
         }
 
         /// getIDs returns an array of the IDs that are in the Collection
+        ///
         pub fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
         }
@@ -629,13 +675,14 @@ pub contract Inspirax: NonFungibleToken {
         /// borrowMoment returns a borrowed reference to a Moment
         /// so that the caller can read data and call methods from it.
         /// They can use this to read its setID, playID, serialNumber,
-        /// or any of the setData or Play data associated with it by
+        /// or any of the Set or Play data associated with it by
         /// getting the setID or playID and reading those fields from
         /// the smart contract.
         ///
         /// Parameters: id: The ID of the NFT to get the reference for
         ///
         /// Returns: A reference to the NFT
+        ///
         pub fun borrowMoment(id: UInt64): &Inspirax.NFT? {
             if self.ownedNFTs[id] != nil {
                 let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
@@ -671,6 +718,7 @@ pub contract Inspirax: NonFungibleToken {
     /// getAllPlays returns all the plays in Inspirax
     ///
     /// Returns: An array of all the plays that have been created
+    ///
     pub fun getAllPlays(): [Inspirax.Play] {
         return Inspirax.playDatas.values
     }
@@ -680,6 +728,7 @@ pub contract Inspirax: NonFungibleToken {
     /// Parameters: playID: The id of the Play that is being searched
     ///
     /// Returns: The metadata as a String to String mapping optional
+    ///
     pub fun getPlayMetaData(playID: UInt32): {String: String}? {
         return self.playDatas[playID]?.metadata
     }
@@ -691,6 +740,7 @@ pub contract Inspirax: NonFungibleToken {
     ///             field: The field to search for
     ///
     /// Returns: The metadata field as a String Optional
+    ///
     pub fun getPlayMetaDataByField(playID: UInt32, field: String): String? {
         // Don't force a revert if the playID or field is invalid
         if let play = Inspirax.playDatas[playID] {
@@ -700,15 +750,31 @@ pub contract Inspirax: NonFungibleToken {
         }
     }
 
+    /// getSetData returns the data that the specified Set
+    ///            is associated with.
+    ///
+    /// Parameters: setID: The id of the Set that is being searched
+    ///
+    /// Returns: The QuerySetData struct that has all the important information about the Set
+    ///
+    pub fun getSetData(setID: UInt32): QuerySetData? {
+        if Inspirax.sets[setID] == nil {
+            return nil
+        } else {
+            return QuerySetData(setID: setID)
+        }
+    }
+
     /// getSetName returns the name that the specified Set
     ///            is associated with.
     ///
     /// Parameters: setID: The id of the Set that is being searched
     ///
     /// Returns: The name of the Set
+    ///
     pub fun getSetName(setID: UInt32): String? {
         // Don't force a revert if the setID is invalid
-        return Inspirax.setDatas[setID]?.name
+        return Inspirax.sets[setID]?.name
     }
 
     /// getSetSeries returns the series that the specified Set
@@ -717,9 +783,10 @@ pub contract Inspirax: NonFungibleToken {
     /// Parameters: setID: The id of the Set that is being searched
     ///
     /// Returns: The series that the Set belongs to
+    ///
     pub fun getSetSeries(setID: UInt32): UInt32? {
         // Don't force a revert if the setID is invalid
-        return Inspirax.setDatas[setID]?.series
+        return Inspirax.sets[setID]?.series
     }
 
     /// getSetIDsByName returns the IDs that the specified Set name
@@ -728,14 +795,15 @@ pub contract Inspirax: NonFungibleToken {
     /// Parameters: setName: The name of the Set that is being searched
     ///
     /// Returns: An array of the IDs of the Set if it exists, or nil if doesn't
+    ///
     pub fun getSetIDsByName(setName: String): [UInt32]? {
         var setIDs: [UInt32] = []
 
-        // Iterate through all the setDatas and search for the name
-        for setData in Inspirax.setDatas.values {
-            if setName == setData.name {
+        // Iterate through all the Sets and search for the name
+        for setID in Inspirax.sets.keys {
+            if setName == Inspirax.sets[setID]?.name {
                 // If the name is found, return the ID
-                setIDs.append(setData.setID)
+                setIDs.append(setID)
             }
         }
 
@@ -753,6 +821,7 @@ pub contract Inspirax: NonFungibleToken {
     /// Parameters: setID: The id of the Set that is being searched
     ///
     /// Returns: An array of Play IDs
+    ///
     pub fun getPlaysInSet(setID: UInt32): [UInt32]? {
         // Don't force a revert if the setID is invalid
         return Inspirax.sets[setID]?.plays
@@ -767,16 +836,13 @@ pub contract Inspirax: NonFungibleToken {
     ///             playID: The id of the Play that is being searched
     ///
     /// Returns: Boolean indicating if the edition is retired or not
+    ///
     pub fun isEditionRetired(setID: UInt32, playID: UInt32): Bool? {
-        // Don't force a revert if the set or play ID is invalid
-        // Remove the set from the dictionary to get its field
-        if let setToRead <- Inspirax.sets.remove(key: setID) {
+
+        if let setdata = self.getSetData(setID: setID) {
 
             // See if the Play is retired from this Set
-            let retired = setToRead.retired[playID]
-
-            // Put the Set back in the contract storage
-            Inspirax.sets[setID] <-! setToRead
+            let retired = setdata.getRetired()[playID]
 
             // Return the retired status
             return retired
@@ -790,11 +856,12 @@ pub contract Inspirax: NonFungibleToken {
     /// isSetLocked returns a boolean that indicates if a Set
     ///             is locked. If it's locked,
     ///             new Plays can no longer be added to it,
-    ///             but Moments can still be minted from Plays the set contains.
+    ///             but Moments can still be minted from Plays the Set contains.
     ///
     /// Parameters: setID: The id of the Set that is being searched
     ///
     /// Returns: Boolean indicating if the Set is locked or not
+    ///
     pub fun isSetLocked(setID: UInt32): Bool? {
         // Don't force a revert if the setID is invalid
         return Inspirax.sets[setID]?.locked
@@ -808,20 +875,17 @@ pub contract Inspirax: NonFungibleToken {
     ///
     /// Returns: The total number of Moments
     ///          that have been minted from an edition
+    ///
     pub fun getNumMomentsInEdition(setID: UInt32, playID: UInt32): UInt32? {
-        // Don't force a revert if the Set or play ID is invalid
-        // Remove the Set from the dictionary to get its field
-        if let setToRead <- Inspirax.sets.remove(key: setID) {
+
+        if let setdata = self.getSetData(setID: setID) {
 
             // Read the numMintedPerPlay
-            let amount = setToRead.numberMintedPerPlay[playID]
-
-            // Put the Set back into the Sets dictionary
-            Inspirax.sets[setID] <-! setToRead
+            let amount = setdata.getNumberMintedPerPlay()[playID]
 
             return amount
         } else {
-            // If the set wasn't found return nil
+            // If the Set wasn't found return nil
             return nil
         }
     }
@@ -839,11 +903,16 @@ pub contract Inspirax: NonFungibleToken {
         // Initialize contract fields
         self.currentSeries = 0
         self.playDatas = {}
-        self.setDatas = {}
         self.sets <- {}
         self.nextPlayID = 1
         self.nextSetID = 1
         self.totalSupply = 0
+
+        // Put a new Collection in storage
+        self.account.save<@Collection>(<- create Collection(), to: self.CollectionStoragePath)
+
+        // Create a public capability for the Collection
+        self.account.link<&{MomentCollectionPublic}>(self.CollectionPublicPath, target: self.CollectionStoragePath)
 
         // Create an Admin resource and save it to storage
         self.account.save<@Admin>(<- create Admin(), to: self.AdminStoragePath)

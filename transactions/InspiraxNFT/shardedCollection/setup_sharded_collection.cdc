@@ -1,5 +1,5 @@
-import Inspirax from "./contracts/Inspirax.cdc"
-import InspiraxShardedCollection from "./contracts/InspiraxShardedCollection.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import InspiraxShardedCollection from "../../../contracts/InspiraxShardedCollection.cdc"
 
 // This transaction creates and stores an empty moment collection
 // and creates a public capability for it.

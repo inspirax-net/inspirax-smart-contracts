@@ -1,4 +1,4 @@
-import Inspirax from "./contracts/Inspirax.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
 
 // This is the script to get a list of all the moments' ids an account owns
 // Just change the argument to `getAccount` to whatever account you want

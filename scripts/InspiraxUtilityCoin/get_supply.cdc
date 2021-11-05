@@ -1,4 +1,4 @@
-import InspiraxUtilityCoin from "./contracts/InspiraxUtilityCoin.cdc"
+import InspiraxUtilityCoin from "../../contracts/InspiraxUtilityCoin.cdc"
 
 pub fun main(): UFix64 {
 
