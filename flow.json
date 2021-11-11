@@ -30,10 +30,10 @@
 				"testnet": "0xcc743689760c543d"
 			}
 		},
-		"InspiraxMarket": {
-			"source": "./contracts/InspiraxMarket.cdc",
+		"NFTStorefront": {
+			"source": "./contracts/NFTStorefront.cdc",
 			"aliases": {
-				"testnet": "0xcc743689760c543d"
+				"testnet": "0x94b06cfca1d8a476"
 			}
 		},
 		"SoundlinksDNA": {
@@ -99,7 +99,7 @@
 				"InspiraxUtilityCoin",
 				"InspiraxShardedCollection",
 				"InspiraxBeneficiaryCut",
-				"InspiraxMarket",
+				"NFTStorefront",
 				"SoundlinksDNA",
 				"NonFungibleToken",
 				"FlowStorageFees"
@@ -109,7 +109,8 @@
 			"testnet-account-inspirax": [
 				"Inspirax",
 				"InspiraxUtilityCoin",
-				"InspiraxShardedCollection"
+				"InspiraxShardedCollection",
+				"InspiraxBeneficiaryCut"
 			]
 		}
 	}

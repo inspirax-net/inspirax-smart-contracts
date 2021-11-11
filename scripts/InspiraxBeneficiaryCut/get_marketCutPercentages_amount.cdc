@@ -1,7 +1,7 @@
-import InspiraxBeneficiaryCut from "./contracts/InspiraxBeneficiaryCut.cdc"
+import InspiraxBeneficiaryCut from "../../contracts/InspiraxBeneficiaryCut.cdc"
 
 pub fun main(): Int {
 
-    return InspiraxBeneficiaryCut.getAmountOfmarketCutPercentages()
+    return InspiraxBeneficiaryCut.getPlayIDsInMarketCutPercentages().length
 
 }

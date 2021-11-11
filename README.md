@@ -12,6 +12,70 @@ INSPIRAX utilizes SOUNDLINKS technology to implant indelible SOUNDLINKS DNA into
 
 Many unique brands, contents and IPs have been joining with us in such a great march. We welcome more participation from all of you.
 
+## What is Soundlinks DNA ?
+Verification protocol，Enabling NFT Protection.
+
+Provides unique binding between NFT and digital asset associated:
+1. Embeds "DNA" into digital asset
+1. "DNA" Data simultaneously stored/anchored into the NFT minted
+1. Uses and utilizes audio to transmit arbitrary info NFC tech that leverages audio and based on sound triggers
+
+A same audio file can contain & transmit different information.
+
+Soundlinks DNA requires minimal storage ( no need to store audio content itself ) - significantly reduces on-chain storage, bandwidth & computing power for interaction between on-chain/off-chain.
+
+- `Anti-piracy`: Off-chain digital content, played back anywhere off-chain is protected and verified, as the Soundlinks DNA embedded in the digital content can be linked to the anchored NFT.
+
+- `Digital content circulation`: Digital content can circulate freely off-chain ( existing infrastructure, such as content platforms, social platforms, etc. ). Only Soundlinks DNA needs to be stored on-chain, not the digital content itself.
+
+- `Low-carbon environmental protection, climate awareness`: Each Soundlinks DNA <= 256bits; A MP3 format song is usually 5-6 Mbytes = 40-50 Mbits; Storage, bandwidth & computing power required by Soundlinks powered blockchain are about one in hundreds of thousands of storing files on the blockchain.
+
+# INSPIRAX Contract Addresses
+
+`Inspirax.cdc` : This is the main Inspirax smart contract that defines the core functionality of the NFT, base on [NBA TopShot smart contract](https://github.com/dapperlabs/nba-smart-contracts).
+
+| Network | Contract Address     |
+|---------|----------------------|
+| Testnet | [0xcc743689760c543d](https://flow-view-source.com/testnet/account/0xcc743689760c543d/contract/Inspirax) |
+| Mainnet |  |
+
+`InspiraxShardedCollection.cdc` : This contract bundles together a bunch of MomentCollection objects in a dictionary, and then distributes the individual Moments between them while implementing the same public interface as the default MomentCollection implementation.
+
+| Network | Contract Address     |
+|---------|----------------------|
+| Testnet | [0xcc743689760c543d](https://flow-view-source.com/testnet/account/0xcc743689760c543d/contract/InspiraxShardedCollection) |
+| Mainnet |  |
+
+`InspiraxUtilityCoin.cdc` : The utility coins circulates on Inspirax.
+
+| Network | Contract Address     |
+|---------|----------------------|
+| Testnet | [0xcc743689760c543d](https://flow-view-source.com/testnet/account/0xcc743689760c543d/contract/InspiraxUtilityCoin) |
+| Mainnet |  |
+
+`InspiraxBeneficiaryCut.cdc` : This smart contract stores the mappings from the names of copyright owners to the vaults in which they'd like to receive tokens, as well as the cut they'd like to take from store and pack sales revenue and marketplace transactions.
+
+| Network | Contract Address     |
+|---------|----------------------|
+| Testnet | [0xcc743689760c543d](https://flow-view-source.com/testnet/account/0xcc743689760c543d/contract/InspiraxBeneficiaryCut) |
+| Mainnet |  |
+
+`NFTStorefront.cdc`: The general-purpose contract is used in the Inspirax market.
+
+| Network | Contract Address     |
+|---------|----------------------|
+| Testnet | [0x94b06cfca1d8a476](https://flow-view-source.com/testnet/account/0x94b06cfca1d8a476/contract/NFTStorefront) |
+| Mainnet | [0x4eb8a10cb9f87357](https://flowscan.org/contract/A.4eb8a10cb9f87357.NFTStorefront) |
+
+# SOUNDLINKS Contract Address
+
+`SoundlinksDNA.cdc` : Each Inspirax NFT is embedded with a unique Soundlinks DNA.
+
+| Network | Contract Address     |
+|---------|----------------------|
+| Testnet | [0x282cfe21068b3883](https://flow-view-source.com/testnet/account/0x282cfe21068b3883/contract/SoundlinksDNA) |
+| Mainnet |  |
+
 # Common Commands
 
 #### Deploy contract
@@ -29,6 +93,7 @@ flow accounts remove-contract SoundlinksDNA --network=testnet --signer=testnet-a
 flow accounts remove-contract Inspirax --network=testnet --signer=testnet-account-inspirax
 flow accounts remove-contract InspiraxShardedCollection --network=testnet --signer=testnet-account-inspirax
 flow accounts remove-contract InspiraxUtilityCoin --network=testnet --signer=testnet-account-inspirax
+flow accounts remove-contract InspiraxBeneficiaryCut --network=testnet --signer=testnet-account-inspirax
 ```
 
 # Soundlinks DNA Commands
@@ -243,7 +308,6 @@ flow scripts execute ./scripts/InspiraxNFT/sets/get_set_locked.cdc --network=tes
 ```
 flow scripts execute ./scripts/InspiraxNFT/sets/get_set_data.cdc --network=testnet --args-json '[{"type": "UInt32","value": "1"}]'
 ```
-
 #### Get Total Supply `Script`
 ```
 flow scripts execute ./scripts/InspiraxNFT/get_totalSupply.cdc --network=testnet
@@ -292,4 +356,111 @@ flow scripts execute ./scripts/InspiraxUtilityCoin/get_supply.cdc --network=test
 #### Get Balance `Script`
 ```
 flow scripts execute ./scripts/InspiraxUtilityCoin/get_balance.cdc --network=testnet --args-json '[{"type": "Address","value": "0xcc743689760c543d"}]'
+```
+
+## Inspirax Beneficiary Cut
+
+#### Set CopyrightOwner `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_copyrightOwner.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "String","value": "CopyrightOwner 001"},{"type": "Address","value": "0x356dd8fe327720aa"}]'
+```
+#### Del CopyrightOwner `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/del_copyrightOwner.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "String","value": "CopyrightOwner 002"}]'
+```
+#### Set Commonweal `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_commonweal.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "String","value": "Commonweal 001"},{"type": "Address","value": "0xc2cb1d5c5cc8788e"},{"type": "UFix64","value": "0.002"}]'
+```
+#### Del Commonweal `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/del_commonweal.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "String","value": "Commonweal 001"}]'
+```
+#### Set Inspirax Capability `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_inspirax_capability.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "Address","value": "0xd10a6123238d2075"}]'
+```
+#### Set Inspirax Market CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_inspirax_marketCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UFix64","value": "0.04"}]'
+```
+#### Set Store CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_storeCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "Dictionary","value": [{"key": {"type": "String","value": "Inspirax"},"value": {"type": "UFix64","value": "0.2"}},{"key": {"type": "String","value": "CopyrightOwner 001"},"value": {"type": "UFix64","value": "0.3"}},{"key": {"type": "String","value": "CopyrightOwner 002"},"value": {"type": "UFix64","value": "0.5"}}]}]'
+```
+#### Del Store CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/del_storeCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"}]'
+```
+#### Set Pack CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_packCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "Dictionary","value": [{"key": {"type": "String","value": "Inspirax"},"value": {"type": "UFix64","value": "0.3"}},{"key": {"type": "String","value": "CopyrightOwner 001"},"value": {"type": "UFix64","value": "0.1"}},{"key": {"type": "String","value": "CopyrightOwner 002"},"value": {"type": "UFix64","value": "0.6"}}]}]'
+```
+#### Del Pack CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/del_packCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "2"}]'
+```
+#### Set Market CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/set_marketCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "Dictionary","value": [{"key": {"type": "String","value": "CopyrightOwner 001"},"value": {"type": "UFix64","value": "0.03"}},{"key": {"type": "String","value": "CopyrightOwner 002"},"value": {"type": "UFix64","value": "0.07"}}]}]'
+```
+#### Del Market CutPercentage `Transaction`
+```
+flow transactions send ./transactions/InspiraxBeneficiaryCut/del_marketCutPercentage.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "2"}]'
+```
+#### Get CopyrightOwner Names `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_copyrightOwner_names.cdc --network=testnet
+```
+#### Get CopyrightOwner Amount `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_copyrightOwner_amount.cdc --network=testnet
+```
+#### Get CopyrightOwner Contain `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_copyrightOwner_contain.cdc --network=testnet --args-json '[{"type": "String","value": "CopyrightOwner 001"}]'
+```
+#### Get CopyrightOwner Address by Name `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_copyrightOwner_address_by_name.cdc --network=testnet --args-json '[{"type": "String","value": "CopyrightOwner 001"}]'
+```
+#### Get Commonweal Names `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_commonweal_names.cdc --network=testnet
+```
+#### Get CommonwealCutPercentage by Name `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_commonwealCutPercentage_by_name.cdc --network=testnet --args-json '[{"type": "String","value": "Commonweal 001"}]'
+```
+#### Get Inspirax Address `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_inspirax_address.cdc --network=testnet
+```
+#### Get Inspirax Market CutPercentage `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_inspirax_marketCutPercentage.cdc --network=testnet
+```
+#### Get Store CutPercentages Amount `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_storeCutPercentages_amount.cdc --network=testnet
+```
+#### Get Store CutPercentages by Name `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_storeCutPercentage_by_name.cdc --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "String","value": "Inspirax"}]'
+```
+#### Get Pack CutPercentages Amount `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_packCutPercentages_amount.cdc --network=testnet
+```
+#### Get Pack CutPercentages by Name `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_packCutPercentage_by_name.cdc --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "String","value": "Inspirax"}]'
+```
+#### Get Market CutPercentages Amount `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_marketCutPercentages_amount.cdc --network=testnet
+```
+#### Get Market CutPercentages by Name `Script`
+```
+flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_marketCutPercentage_by_name.cdc --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "String","value": "CopyrightOwner 001"}]'
 ```

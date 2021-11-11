@@ -1,4 +1,4 @@
-import InspiraxBeneficiaryCut from "./contracts/InspiraxBeneficiaryCut.cdc"
+import InspiraxBeneficiaryCut from "../../contracts/InspiraxBeneficiaryCut.cdc"
 
 pub fun main(name: String): UFix64? {
 

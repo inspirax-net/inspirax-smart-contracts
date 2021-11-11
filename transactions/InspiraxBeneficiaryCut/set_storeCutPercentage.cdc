@@ -1,6 +1,6 @@
-import InspiraxBeneficiaryCut from "./contracts/InspiraxBeneficiaryCut.cdc"
+import InspiraxBeneficiaryCut from "../../contracts/InspiraxBeneficiaryCut.cdc"
 
-transaction(saleID: UInt32, copyrightOwnerAndCutPercentage: {String: UFix64}?) {
+transaction(saleID: UInt32, copyrightOwnerAndCutPercentage: {String: UFix64}) {
 
     let adminRef: &InspiraxBeneficiaryCut.Admin
 

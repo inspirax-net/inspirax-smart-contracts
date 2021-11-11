@@ -1,6 +1,6 @@
-import InspiraxBeneficiaryCut from "./contracts/InspiraxBeneficiaryCut.cdc"
-import FungibleToken from "./contracts/FungibleToken.cdc"
-import InspiraxUtilityCoin from "./contracts/InspiraxUtilityCoin.cdc"
+import InspiraxBeneficiaryCut from "../../contracts/InspiraxBeneficiaryCut.cdc"
+import FungibleToken from "../../contracts/FungibleToken.cdc"
+import InspiraxUtilityCoin from "../../contracts/InspiraxUtilityCoin.cdc"
 
 transaction(name: String, addr: Address) {
 

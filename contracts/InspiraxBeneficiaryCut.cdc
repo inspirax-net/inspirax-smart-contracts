@@ -1,6 +1,6 @@
 /**
     Description: Central Smart Contract for Inspirax Beneficiary Cut
-    This smart contract stores the mappings from the names of Copyright Owners
+    This smart contract stores the mappings from the names of copyright owners
     to the vaults in which they'd like to receive tokens,
     as well as the cut they'd like to take from store and pack sales revenue
     and marketplace transactions.
@@ -14,7 +14,7 @@ pub contract InspiraxBeneficiaryCut {
     pub event ContractInitialized()
 
     /// Emitted when a FT-receiving capability for a copyright owner has been updated
-    /// If address is nil, that means the capability has been removed
+    /// If address is nil, that means the capability has been removed.
     pub event CopyrightOwnerCapabilityUpdated(name: String, address: Address?)
 
     /// Emitted when a copyright owner's store sale cutpercentage has been updated
@@ -41,7 +41,7 @@ pub contract InspiraxBeneficiaryCut {
     /// InspiraxBeneficiaryCut named path
     pub let AdminStoragePath: StoragePath
 
-    /// Copyright Owners Capabilities
+    /// Copyright owners Capabilities, copyright owner's name => capability
     access(self) var copyrightOwnerCapabilities: {String: Capability<&{FungibleToken.Receiver}>}
 
     /// Beneficiary Cut from store sales
@@ -72,11 +72,6 @@ pub contract InspiraxBeneficiaryCut {
     /// Commonweal organization cutPercentages
     access(self) var commonwealCutPercentages: {String: UFix64}
 
-    /// Get the boolean indicating if the Copyright Owner's name is existed or not
-    pub fun isCopyrightOwnerExisted(name: String): Bool {
-        return self.copyrightOwnerCapabilities.keys.contains(name)
-    }
-
     /// Get all copyright owner names
     pub fun getAllCopyrightOwnerNames(): [String] {
         return self.copyrightOwnerCapabilities.keys
@@ -87,19 +82,19 @@ pub contract InspiraxBeneficiaryCut {
         return self.commonwealCapabilities.keys
     }
 
-    /// Get the amount of storeCutPercentages
-    pub fun getAmountOfstoreCutPercentages(): Int {
-        return self.storeCutPercentages.length
+    /// Get the saleIDs in storeCutPercentages
+    pub fun getSaleIDsInStoreCutPercentages(): [UInt32] {
+        return self.storeCutPercentages.keys
     }
 
-    /// Get the amount of packCutPercentages
-    pub fun getAmountOfpackCutPercentages(): Int {
-        return self.packCutPercentages.length
+    /// Get the packIDs in packCutPercentages
+    pub fun getPackIDsInPackCutPercentages(): [UInt32] {
+        return self.packCutPercentages.keys
     }
 
-    /// Get the amount of marketCutPercentages
-    pub fun getAmountOfmarketCutPercentages(): Int {
-        return self.marketCutPercentages.length
+    /// Get the playIDs in marketCutPercentages
+    pub fun getPlayIDsInMarketCutPercentages(): [UInt32] {
+        return self.marketCutPercentages.keys
     }
 
     /// Get the capability for depositing accounting tokens to the copyright owner
@@ -143,34 +138,33 @@ pub contract InspiraxBeneficiaryCut {
     }
 
     /// Get the copyright owners' names with saleID
-    pub fun getStoreCopyrightOwnerNames(saleID: UInt32): [String] {
+    pub fun getStoreCopyrightOwnerNames(saleID: UInt32): [String]? {
 
-        return (self.storeCutPercentages[saleID] ?? panic("Cannot find saleID.")).keys
-
+        if let cac = self.storeCutPercentages[saleID] {
+            return cac.keys
+        } else {
+            return nil
+        }
     }
 
     /// Get the copyright owners' names with packID
-    pub fun getPackCopyrightOwnerNames(packID: UInt32): [String] {
+    pub fun getPackCopyrightOwnerNames(packID: UInt32): [String]? {
 
-        return (self.packCutPercentages[packID] ?? panic("Cannot find packID.")).keys
-
+        if let cac = self.packCutPercentages[packID] {
+            return cac.keys
+        } else {
+            return nil
+        }
     }
 
     /// Get the copyright owners' names with playID
-    pub fun getMarketCopyrightOwnerNames(playID: UInt32): [String] {
+    pub fun getMarketCopyrightOwnerNames(playID: UInt32): [String]? {
 
-        return (self.marketCutPercentages[playID] ?? panic("Cannot find playID.")).keys
-
-    }
-
-    /// Get the capability of Inspirax service
-    pub fun getInspiraxCapability(): Capability {
-        return self.inspiraxCapability
-    }
-
-    /// Get the market cutPercentage of Inspirax service
-    pub fun getInspiraxMarketCutPercentage(): UFix64 {
-        return self.inspiraxMarketCutPercentage
+        if let cac = self.marketCutPercentages[playID] {
+            return cac.keys
+        } else {
+            return nil
+        }
     }
 
     /// Get the capability for depositing accounting tokens to the commonweal organization
@@ -195,7 +189,7 @@ pub contract InspiraxBeneficiaryCut {
 
     pub resource Admin {
 
-        /// Update the FT-receiving capability for a copyright owner
+        /// Set or update the FT-receiving capability for a copyright owner
         pub fun setCopyrightOwnerCapability(name: String, capability: Capability<&{FungibleToken.Receiver}>?) {
 
             if let cap = capability {
@@ -214,20 +208,20 @@ pub contract InspiraxBeneficiaryCut {
             }
         }
 
-        /// Update the store cutpercentage for the copyright owner
+        /// Set or update the store cutpercentage for the copyright owner
         pub fun setStoreCutPercentages(saleID: UInt32, copyrightOwnerAndCutPercentage: {String: UFix64}?) {
 
             if let cac = copyrightOwnerAndCutPercentage {
 
                 for name in cac.keys {
-                    assert(InspiraxBeneficiaryCut.isCopyrightOwnerExisted(name: name), message: "Not found Copyright Owner's name in registered.")
+                    assert(InspiraxBeneficiaryCut.getAllCopyrightOwnerNames().contains(name), message: "Not found Copyright Owner's name in registered.")
                 }
 
                 var total: UFix64 = 0.0
                 for cutPercentage in cac.values {
                     total = total + cutPercentage
                 }
-                assert(total == 1.0, message: "The sum of cutPercentage must be 1.0.")
+                assert(total == 1.0, message: "The sum of cutPercentages must be 1.0.")
 
                 InspiraxBeneficiaryCut.storeCutPercentages[saleID] = cac
 
@@ -239,20 +233,20 @@ pub contract InspiraxBeneficiaryCut {
             }
         }
 
-        /// Update the pack cutpercentage for the copyright owner
+        /// Set or update the pack cutpercentage for the copyright owner
         pub fun setPackCutPercentages(packID: UInt32, copyrightOwnerAndCutPercentage: {String: UFix64}?) {
 
             if let cac = copyrightOwnerAndCutPercentage {
 
                 for name in cac.keys {
-                    assert(InspiraxBeneficiaryCut.isCopyrightOwnerExisted(name: name), message: "Not found Copyright Owner's name in registered.")
+                    assert(InspiraxBeneficiaryCut.getAllCopyrightOwnerNames().contains(name), message: "Not found Copyright Owner's name in registered.")
                 }
 
                 var total: UFix64 = 0.0
                 for cutPercentage in cac.values {
                     total = total + cutPercentage
                 }
-                assert(total == 1.0, message: "The sum of cutPercentage must be 1.0.")
+                assert(total == 1.0, message: "The sum of cutPercentages must be 1.0.")
 
                 InspiraxBeneficiaryCut.packCutPercentages[packID] = cac
 
@@ -264,20 +258,22 @@ pub contract InspiraxBeneficiaryCut {
             }
         }
 
-        /// Update the market cutpercentage for the copyright owner
+        /// Set or update the market cutpercentage for the copyright owner
         pub fun setMarketCutPercentages(playID: UInt32, copyrightOwnerAndCutPercentage: {String: UFix64}?) {
 
             if let cac = copyrightOwnerAndCutPercentage {
 
                 for name in cac.keys {
-                    assert(InspiraxBeneficiaryCut.isCopyrightOwnerExisted(name: name), message: "Not found Copyright Owner's name in registered.")
+                    assert(InspiraxBeneficiaryCut.getAllCopyrightOwnerNames().contains(name), message: "Not found Copyright Owner's name in registered.")
                 }
 
                 var total: UFix64 = 0.0
                 for cutPercentage in cac.values {
                     total = total + cutPercentage
                 }
+
                 total = total + InspiraxBeneficiaryCut.inspiraxMarketCutPercentage
+
                 assert(total < 1.0, message: "The sum of cutPercentage must be less than 1.0.")
 
                 InspiraxBeneficiaryCut.marketCutPercentages[playID] = cac
@@ -298,7 +294,7 @@ pub contract InspiraxBeneficiaryCut {
             let addr = ((capability.borrow() ?? panic("Capability is empty."))
                 .owner ?? panic("Capability owner is empty."))
                 .address
-            
+
             emit InspiraxCapabilityUpdated(address: addr)
         }
 
@@ -313,11 +309,11 @@ pub contract InspiraxBeneficiaryCut {
             emit InspiraxMarketCutPercentageUpdated(cutPercentage: cutPercentage)
         }
 
-        /// Update the capability and cutPercentage of commonweal organization
+        /// Set or update the capability and cutPercentage of commonweal organization
         pub fun setCommonweal(name: String, capability: Capability<&{FungibleToken.Receiver}>?, cutPercentage: UFix64) {
 
             pre{
-                cutPercentage < 1.0: "The cutPercentage must be less than 1.0."
+                cutPercentage <= 1.0: "The cutPercentage can not be greater than 1.0."
             }
 
             if let cap = capability {
