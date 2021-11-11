@@ -1,6 +1,6 @@
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-import Inspirax from "./contracts/Inspirax.cdc"
-import InspiraxMarket from "./contracts/InspiraxMarket.cdc"
+import NonFungibleToken from "../../../contracts/NonFungibleToken.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import NFTStorefront from "../../../contracts/NFTStorefront.cdc"
 
 // This transaction transfers a moment to a recipient
 // and cancels the sale in the collection if it exists
@@ -24,9 +24,19 @@ transaction(recipient: Address, withdrawID: UInt64) {
         // Withdraw the NFT
         self.transferToken <- collectionRef.withdraw(withdrawID: withdrawID)
 
-        if let saleRef = acct.borrow<&InspiraxMarket.SaleCollection>(from: InspiraxMarket.marketStoragePath) {
-            if let price = saleRef.getPrice(tokenID: withdrawID) {
-                saleRef.cancelSale(tokenID: withdrawID)
+        if let saleRef = acct.borrow<&NFTStorefront.Storefront>(from: NFTStorefront.StorefrontStoragePath) {
+
+            for id in saleRef.getListingIDs() {
+
+                let listing = saleRef.borrowListing(listingResourceID: id)!
+
+                if listing.getDetails().nftType == Type<@Inspirax.NFT>() {
+
+                    if listing.getDetails().nftID == withdrawID {
+
+                        saleRef.removeListing(listingResourceID: id)
+                    }
+                }
             }
         }
     }

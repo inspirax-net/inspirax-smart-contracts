@@ -1,6 +1,6 @@
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-import Inspirax from "./contracts/Inspirax.cdc"
-import InspiraxMarket from "./contracts/InspiraxMarket.cdc"
+import NonFungibleToken from "../../../contracts/NonFungibleToken.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import NFTStorefront from "../../../contracts/NFTStorefront.cdc"
 
 // This transaction transfers a number of moments to a recipient
 
@@ -17,12 +17,22 @@ transaction(recipient: Address, momentIDs: [UInt64]) {
 
         self.transferTokens <- acct.borrow<&Inspirax.Collection>(from: Inspirax.CollectionStoragePath)!.batchWithdraw(ids: momentIDs)
 
-        if let saleRef = acct.borrow<&InspiraxMarket.SaleCollection>(from: InspiraxMarket.marketStoragePath) {
+        if let saleRef = acct.borrow<&NFTStorefront.Storefront>(from: NFTStorefront.StorefrontStoragePath) {
 
-            for withdrawID in momentIDs {
+            for id in saleRef.getListingIDs() {
 
-                if let price = saleRef.getPrice(tokenID: withdrawID) {
-                    saleRef.cancelSale(tokenID: withdrawID)
+                let listing = saleRef.borrowListing(listingResourceID: id)!
+
+                if listing.getDetails().nftType == Type<@Inspirax.NFT>() {
+
+                    for withdrawID in momentIDs {
+
+                        if listing.getDetails().nftID == withdrawID {
+
+                            saleRef.removeListing(listingResourceID: id)
+                            break
+                        }
+                    }
                 }
             }
         }

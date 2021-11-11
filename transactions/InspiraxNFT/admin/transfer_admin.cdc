@@ -1,5 +1,5 @@
-import Inspirax from "./contracts/Inspirax.cdc"
-import InspiraxAdminReceiver from "./contracts/InspiraxAdminReceiver.cdc"
+import Inspirax from "../../../contracts/Inspirax.cdc"
+import InspiraxAdminReceiver from "../../../contracts/InspiraxAdminReceiver.cdc"
 
 // This transaction takes a Inspirax Admin resource and
 // saves it to the account storage of the account

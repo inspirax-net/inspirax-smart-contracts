@@ -1,6 +1,6 @@
-import FungibleToken from "./contracts/FungibleToken.cdc"
-import InspiraxUtilityCoin from "./contracts/InspiraxUtilityCoin.cdc"
-import InspiraxBeneficiaryCut from "./contracts/InspiraxBeneficiaryCut.cdc"
+import FungibleToken from "../../../contracts/FungibleToken.cdc"
+import InspiraxUtilityCoin from "../../../contracts/InspiraxUtilityCoin.cdc"
+import InspiraxBeneficiaryCut from "../../../contracts/InspiraxBeneficiaryCut.cdc"
 
 transaction(packID: UInt32, purchaseAmount: UFix64, commonwealName: String) {
 
@@ -17,7 +17,7 @@ transaction(packID: UInt32, purchaseAmount: UFix64, commonwealName: String) {
 
             let purchaseVault <- self.payRef.withdraw(amount: purchaseAmount) as! @InspiraxUtilityCoin.Vault
 
-            if (commonwealName != "\"null\"") {
+            if (commonwealName != "null") {
                 // Commonweal Cut
                 let commonwealCutPercentage = InspiraxBeneficiaryCut.getCommonwealCutPercentage(name: commonwealName)
                     ?? panic("Cannot find the commonweal cutPercentage by the name")
@@ -26,14 +26,14 @@ transaction(packID: UInt32, purchaseAmount: UFix64, commonwealName: String) {
 
                 let commonwealCap = InspiraxBeneficiaryCut.getCommonwealCapability(name: commonwealName)
                     ?? panic("Cannot find the commonweal by the name")
-                let commonwealReceiverRef = commonwealCap.borrow<&{FungibleToken.Receiver}>()
+                let commonwealReceiverRef = commonwealCap.borrow()
                     ?? panic("Cannot find commonweal token receiver")
                 commonwealReceiverRef.deposit(from: <-commonwealCut)
             }
 
             // Copyright owners Cut
             let tokenAmount = purchaseVault.balance
-            for name in InspiraxBeneficiaryCut.getPackCopyrightOwnerNames(packID: packID) {
+            for name in InspiraxBeneficiaryCut.getPackCopyrightOwnerNames(packID: packID)! {
                 let copyrightOwnerCutPercentage = InspiraxBeneficiaryCut.getPackCutPercentage(packID: packID, name: name)
                     ?? panic("Cannot find the copyright owner cutPercentage by the name")
                 let copyrightOwnerCutAmount = tokenAmount * copyrightOwnerCutPercentage
@@ -41,7 +41,7 @@ transaction(packID: UInt32, purchaseAmount: UFix64, commonwealName: String) {
 
                 let copyrightOwnerCap = InspiraxBeneficiaryCut.getCopyrightOwnerCapability(name: name)
                     ?? panic("Cannot find the copyright owner by the name")
-                let copyrightOwnerReceiverRef = copyrightOwnerCap.borrow<&{FungibleToken.Receiver}>()
+                let copyrightOwnerReceiverRef = copyrightOwnerCap.borrow()
                     ?? panic("Cannot find copyright owner token receiver")
                 copyrightOwnerReceiverRef.deposit(from: <-copyrightOwnerCut)
             }

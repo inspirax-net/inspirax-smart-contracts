@@ -98,7 +98,7 @@ pub contract InspiraxBeneficiaryCut {
     }
 
     /// Get the capability for depositing accounting tokens to the copyright owner
-    pub fun getCopyrightOwnerCapability(name: String): Capability? {
+    pub fun getCopyrightOwnerCapability(name: String): Capability<&{FungibleToken.Receiver}>? {
 
         if let cap = self.copyrightOwnerCapabilities[name] {
             return cap
@@ -168,7 +168,7 @@ pub contract InspiraxBeneficiaryCut {
     }
 
     /// Get the capability for depositing accounting tokens to the commonweal organization
-    pub fun getCommonwealCapability(name: String): Capability? {
+    pub fun getCommonwealCapability(name: String): Capability<&{FungibleToken.Receiver}>? {
 
         if let cap = self.commonwealCapabilities[name] {
             return cap

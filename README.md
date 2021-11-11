@@ -173,9 +173,29 @@ flow transactions send ./transactions/InspiraxNFT/admin/mint_moment.cdc --signer
 ```
 flow transactions send ./transactions/InspiraxNFT/admin/batch_mint_moments.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "4"},{"type": "UInt32","value": "7"},{"type": "UInt32","value": "2"},{"type": "Address","value": "0xcc743689760c543d"}]'
 ```
-#### Admin / Provide Moment.cdc `Transaction`
+#### Admin / Provide Moment `Transaction`
 ```
 flow transactions send ./transactions/InspiraxNFT/admin/provide_moment.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "Address","value": "0x356dd8fe327720aa"},{"type": "Array","value": [{"type": "UInt64","value": "2"},{"type": "UInt64","value": "7"},{"type": "UInt64","value": "8"}]}]'
+```
+#### Admin / Purchase Store by Cash `Transaction`
+```
+flow transactions send ./transactions/InspiraxNFT/admin/purchase_store_by_cash.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "UFix64","value": "100.0"},{"type": "String","value": "Commonweal 001"}]'
+```
+#### Admin / Purchase Store by IUC `Transaction`
+```
+flow transactions send ./transactions/InspiraxNFT/admin/purchase_store_by_IUC.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "UFix64","value": "20.0"},{"type": "String","value": "Commonweal 001"}]'
+```
+#### Admin / Purchase Pack by Cash `Transaction`
+```
+flow transactions send ./transactions/InspiraxNFT/admin/purchase_pack_by_cash.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "UFix64","value": "100.0"},{"type": "String","value": "Commonweal 001"}]'
+```
+#### Admin / Purchase Pack by IUC `Transaction`
+```
+flow transactions send ./transactions/InspiraxNFT/admin/purchase_pack_by_IUC.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "UFix64","value": "20.0"},{"type": "String","value": "Commonweal 001"}]'
+```
+#### Admin / Transfer Admin `Transaction`
+```
+flow transactions send ./transactions/InspiraxNFT/admin/transfer_admin.cdc --signer testnet-account-inspirax --network=testnet
 ```
 
 ### ShardedCollection `Transaction`
@@ -205,7 +225,7 @@ flow transactions send ./transactions/InspiraxNFT/user/transfer_moment.cdc --sig
 ```
 #### User / Batch Transfer Moments `Transaction`
 ```
-flow transactions send ./transactions/InspiraxNFT/user/batch_transfer_moments.cdc --signer testnet-account --network=testnet --args-json '[{"type": "Address","value": "0xcc743689760c543d"},{"type": "Array","value": [{"type": "UInt64","value": "2"},{"type": "UInt64","value": "3"},{"type": "UInt64","value": "4"}]}]'
+flow transactions send ./transactions/InspiraxNFT/user/batch_transfer_moments.cdc --signer testnet-account --network=testnet --args-json '[{"type": "Address","value": "0x356dd8fe327720aa"},{"type": "Array","value": [{"type": "UInt64","value": "1"},{"type": "UInt64","value": "9"}]}]'
 ```
 
 ### Collections `Script`
@@ -463,4 +483,48 @@ flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_marketCutPercentages_a
 #### Get Market CutPercentages by Name `Script`
 ```
 flow scripts execute ./scripts/InspiraxBeneficiaryCut/get_marketCutPercentage_by_name.cdc --network=testnet --args-json '[{"type": "UInt32","value": "1"},{"type": "String","value": "CopyrightOwner 001"}]'
+```
+
+# NFTStorefront Commands
+The general-purpose contract is used in the Inspirax market.
+
+NFTStorefront contract is already deployed to testnet at [0x94b06cfca1d8a476](https://flow-view-source.com/testnet/account/0x94b06cfca1d8a476).
+
+#### Setup Account `Transaction`
+```
+flow transactions send ./transactions/NFTStorefront/setup_account.cdc --signer testnet-account --network=testnet
+```
+#### Sell Item by IUC `Transaction`
+```
+flow transactions send ./transactions/NFTStorefront/sell_item_by_IUC.cdc --signer testnet-account --network=testnet --args-json '[{"type": "UInt64","value": "1"},{"type": "UFix64","value": "60.0"}]'
+```
+#### Remove Item `Transaction`
+```
+flow transactions send ./transactions/NFTStorefront/remove_item.cdc --signer testnet-account --network=testnet --args-json '[{"type": "UInt64","value": "15320080"}]'
+```
+#### Cleanup Item `Transaction`
+```
+flow transactions send ./transactions/NFTStorefront/cleanup_item.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt64","value": "15321212"},{"type": "Address","value": "0xd10a6123238d2075"}]'
+```
+#### Buy Item by Cash `Transaction`
+```
+flow transactions send ./transactions/NFTStorefront/buy_item_by_cash.cdc --signer testnet-account-inspirax --network=testnet --args-json '[{"type": "UInt64","value": "15327264"},{"type": "Address","value": "0xd10a6123238d2075"},{"type": "Address","value": "0x356dd8fe327720aa"}]'
+```
+#### Buy Item by IUC `Transaction`
+```
+flow transactions build ./transactions/NFTStorefront/buy_item_by_IUC.cdc --network=testnet --args-json '[{"type": "UInt64","value": "15335701"},{"type": "Address","value": "0xd10a6123238d2075"}]' --authorizer testnet-account2 --authorizer testnet-account-inspirax --proposer testnet-account2 --payer testnet-account-inspirax --filter payload --save built.rlp
+
+flow transactions sign ./built.rlp --signer testnet-account2 --network=testnet --filter payload --save signed.rlp
+
+flow transactions sign ./signed.rlp --signer testnet-account-inspirax --network=testnet --filter payload --save signed.rlp
+
+flow transactions send-signed ./signed.rlp --network=testnet
+```
+#### Get Listing Ids `Script`
+```
+flow scripts execute ./scripts/NFTStorefront/get_listing_ids.cdc --network=testnet --args-json '[{"type": "Address","value": "0xd10a6123238d2075"}]'
+```
+#### Get Listing Details `Script`
+```
+flow scripts execute ./scripts/NFTStorefront/get_listing_details.cdc --network=testnet --args-json '[{"type": "Address","value": "0xd10a6123238d2075"},{"type": "UInt64","value": "15321212"}]'
 ```

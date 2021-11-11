@@ -90,6 +90,10 @@
 		"testnet-account": {
 			"address": "0xd10a6123238d2075",
 			"keys": "${FLOW_PRIVATE_KEY}"
+		},
+		"testnet-account2": {
+			"address": "0x356dd8fe327720aa",
+			"keys": "${FLOW_PRIVATE_KEY}"
 		}
 	},
 	"deployments": {
